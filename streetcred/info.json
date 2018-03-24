@@ -1,0 +1,8 @@
+{
+    "AUTHOR": "Original cog by: Will/tekulvw, modded by MakNCheese",
+    "DESCRIPTION": "Earn some hella cred, Yo. Set an upvote and downvote emote using downemoji and upemoji, then add the corresponding reaction to a post to award the user upvotes/downvotes",
+    "DISABLED": false,
+    "SHORT": "Use emotes to award people with upvotes/downvotes",
+    "NAME": "StreetCred",
+    "INSTALL_MSG": "StreetCred is a mod of Squid Plugin's Karma cog and uses some code from Flapjax's msgvote cog. All credit to tekulvw and flapjax (link to Squid-Plugins git: <https://github.com/tekulvw/Squid-Plugins> link to Flapjack Cogs git: <https://github.com/flapjax/FlapJack-Cogs>)"
+}
