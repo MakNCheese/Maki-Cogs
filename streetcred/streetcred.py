@@ -21,7 +21,7 @@ class StreetCred:
         for key in self.scores.keys():
             self._add_entry(key)
 
-    def _process_scores(self, member, is_downvote):
+    def process_scores(self, member, is_downvote):
         member_id = member.id
         if not is_downvote:
             score_to_add = self.settings["CRED_YIELD"]
@@ -148,7 +148,7 @@ class StreetCred:
             await self.bot.say(member.name + " has no upvotes/downvotes.")
 
     @commands.command(pass_context=True)
-    async def credboard(self, ctx, decending: bool=True):
+    async def credlb(self, ctx, decending: bool=True):
         """Prints the streetcred leaderboard
 
         Example:
@@ -192,7 +192,6 @@ class StreetCred:
         else:
             await self.bot.say("There are no entries.")
 
-
     @commands.group(pass_context=True)
     @checks.mod_or_permissions(manage_messages=True)
     async def credset(self, ctx):
@@ -200,26 +199,26 @@ class StreetCred:
         if ctx.invoked_subcommand is None:
             await send_cmd_help(ctx)
 
-    @credset.command(name="upemoji", pass_context=True, no_pm=True)
+    @credset.command(name="upemote", pass_context=True, no_pm=True)
     async def _msgvote_upemoji(self, ctx, emoji):
-        """Set the upvote emoji"""
+        """Set the upvote emote"""
 
         emoji = str(self.fix_custom_emoji(ctx.message.server, emoji))
-        self.settings["up_emoji"] = emoji
-        dataIO.save_json("data/streetcred/settings.json", self.settings)
+        self.settings["UP_EMOTE"] = emoji
+        fileIO('data/streetcred/settings.json', 'save', self.settings)
         await self.bot.say("Upvote emoji set to: " + emoji)
 
-    @credset.command(name="downemoji", pass_context=True, no_pm=True)
+    @credset.command(name="downemote", pass_context=True, no_pm=True)
     async def _msgvote_downemoji(self, ctx, emoji):
-        """Set the downvote emoji"""
+        """Set the downvote emote"""
 
         emoji = str(self.fix_custom_emoji(ctx.message.server, emoji))
-        self.settings["dn_emoji"] = emoji
-        dataIO.save_json("data/streetcred/settings.json", self.settings)
+        self.settings["DN_EMOTE"] = emoji
+        fileIO('data/streetcred/settings.json', 'save', self.settings)
         await self.bot.say("Downvote emoji set to: " + emoji)
 
     @credset.command(pass_context=True, name="respond")
-    async def _streetcredset_respond(self, ctx):
+    async def _streetcredset_respond(self):
         """Toggles if bot will respond when points get added/removed"""
         if self.settings['RESPOND_ON_POINT']:
             await self.bot.say("Responses disabled.")
@@ -229,8 +228,8 @@ class StreetCred:
             not self.settings['RESPOND_ON_POINT']
         fileIO('data/streetcred/settings.json', 'save', self.settings)
 
-    @credset.command(pass_context=True)
-    async def _streetcredset_yield(self, kpu: int):
+    @credset.command(pass_context=True, name="upyield")
+    async def _streetcredset_yield(self, ctx, kpu: int):
         """Amount of streetcred per upvote
 
         Example: yield 1"""
@@ -238,8 +237,8 @@ class StreetCred:
         await self.bot.say("streetcred is now set to {} per upvote.".format(kpu))
         fileIO('data/streetcred/settings.json', 'save', self.settings)
 
-    @credset.command(pass_context=True)
-    async def _streetcredset_upvotebonus(self, kpu: float):
+    @credset.command(pass_context=True, name="upbonus")
+    async def _streetcredset_upvotebonus(self, ctx, kpu: float):
         """The bonus the user gets upon upvoting
 
         Example: upvotebonus 0.2"""
@@ -256,23 +255,23 @@ class StreetCred:
     async def on_reaction_add(self, reaction, user):
         if user == self.bot.user:
             return
-        if reaction.emoji == self.fix_custom_emoji(reaction.message.server, self.settings["up_emoji"]):
-            self._process_scores(reaction.message.author, False)
+        if reaction.emoji == self.fix_custom_emoji(reaction.message.server, self.settings["UP_EMOTE"]):
+            self.process_scores(reaction.message.author, False)
             self._process_upvote(reaction.message.author, 1)
             self._give_upvote(user, False)
-        elif reaction.emoji == self.fix_custom_emoji(reaction.message.server, self.settings["dn_emoji"]):
-            self._process_scores(reaction.message.author, True)
+        elif reaction.emoji == self.fix_custom_emoji(reaction.message.server, self.settings["DN_EMOTE"]):
+            self.process_scores(reaction.message.author, True)
             self._process_downvote(reaction.message.author, 1)
 
     async def on_reaction_remove(self, reaction, user):
         if user == self.bot.user:
             return
-        if reaction.emoji == self.fix_custom_emoji(reaction.message.server, self.settings["up_emoji"]):
-            self._process_scores(reaction.message.author, True)
+        if reaction.emoji == self.fix_custom_emoji(reaction.message.server, self.settings["UP_EMOTE"]):
+            self.process_scores(reaction.message.author, True)
             self._process_upvote(reaction.message.author, -1)
             self._give_upvote(user, True)
-        elif reaction.emoji == self.fix_custom_emoji(reaction.message.server, self.settings["dn_emoji"]):
-            self._process_scores(reaction.message.author, False)
+        elif reaction.emoji == self.fix_custom_emoji(reaction.message.server, self.settings["DN_EMOTE"]):
+            self.process_scores(reaction.message.author, False)
             self._process_downvote(reaction.message.author, -1)
 
 
